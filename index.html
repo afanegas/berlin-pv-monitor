@@ -90,11 +90,11 @@
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="avgGrowth">-</div>
-                <div class="stat-label">Avg. Annual Growth</div>
+                <div class="stat-label">Total Growth</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="peakYear">-</div>
-                <div class="stat-label">Peak Installation Year</div>
+                <div class="stat-label">Latest Year</div>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
         // Load CSV file
         async function loadData() {
             try {
-                const response = await fetch('solar_berlin_yearly.csv');
+                const response = await fetch('solar_berlin_cleaned.csv');
                 if (!response.ok) {
                     throw new Error('Could not load CSV file');
                 }
@@ -127,46 +127,24 @@
                 console.error('Error loading data:', error);
                 document.querySelector('.container').innerHTML += 
                     '<div style="color: red; padding: 20px; text-align: center;">' +
-                    '<strong>Error:</strong> Could not load solar_berlin_yearly.csv<br>' +
+                    '<strong>Error:</strong> Could not load solar_berlin_cleaned.csv<br>' +
                     'Make sure the file is in the same folder as this HTML file.</div>';
             }
         }
 
         function processAndVisualize(rawData) {
-            // Group by year and sum power
-            const yearlyData = {};
-            rawData.forEach(row => {
-                const year = row.Jahr;
-                const power = row.Bestand_Leistung_kW || 0;
-                if (!yearlyData[year]) {
-                    yearlyData[year] = { total: 0, count: 0 };
-                }
-                yearlyData[year].total += power;
-                yearlyData[year].count += 1;
-            });
-
-            // Convert to array and sort by year
-            const data = Object.keys(yearlyData)
-                .map(year => ({
-                    Jahr: parseInt(year),
-                    Total_Power_MW: yearlyData[year].total / 1000, // Convert kW to MW
-                    Installations: yearlyData[year].count
+            // Convert kW to MW and sort by year
+            const data = rawData
+                .map(row => ({
+                    Jahr: row.Jahr,
+                    Power_MW: row.Bestand_Leistung_kW / 1000 // Convert kW to MW
                 }))
                 .sort((a, b) => a.Jahr - b.Jahr);
 
-            // Calculate new power per year
-            data.forEach((d, i) => {
-                if (i === 0) {
-                    d.New_Power_MW = d.Total_Power_MW;
-                } else {
-                    d.New_Power_MW = d.Total_Power_MW - data[i-1].Total_Power_MW;
-                }
-            });
-
-            // Create Bar Chart for New Power Installation per Year
+            // Create Bar Chart for Cumulated Power per Year
             const trace = {
                 x: data.map(d => d.Jahr),
-                y: data.map(d => d.New_Power_MW),
+                y: data.map(d => d.Power_MW),
             type: 'bar',
             name: 'New Installations',
             marker: {
@@ -219,15 +197,13 @@
             Plotly.newPlot('powerChart', [trace], layout, config);
 
             // Calculate and display statistics
-            const totalPower = data[data.length - 1].Total_Power_MW;
-            const growthRates = data.slice(1).map((d, i) => 
-                ((d.New_Power_MW - data[i].New_Power_MW) / data[i].New_Power_MW * 100)
-            );
-            const avgGrowth = growthRates.reduce((a, b) => a + b, 0) / growthRates.length;
-            const peakYear = data.reduce((max, d) => d.New_Power_MW > max.New_Power_MW ? d : max).Jahr;
+            const totalPower = data[data.length - 1].Power_MW;
+            const firstYearPower = data[0].Power_MW;
+            const totalGrowth = ((totalPower - firstYearPower) / firstYearPower * 100);
+            const peakYear = data[data.length - 1].Jahr;
 
             document.getElementById('totalPower').textContent = totalPower.toFixed(1);
-            document.getElementById('avgGrowth').textContent = avgGrowth.toFixed(1) + '%';
+            document.getElementById('avgGrowth').textContent = totalGrowth.toFixed(1) + '%';
             document.getElementById('peakYear').textContent = peakYear;
         }
 
