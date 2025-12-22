@@ -1,2 +1,2 @@
 pandas
-git+https://github.com/OpenEnergyPlatform/open-MaStR.git
+open-MaStR
