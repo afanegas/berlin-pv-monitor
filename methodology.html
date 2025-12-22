@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodik - Berlin PV-Ausbau</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #F5BD25 0%, #ff9605 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #2d3748;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        p {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #F5BD25;
+        }
+        
+        .info-box p {
+            margin-bottom: 10px;
+        }
+        
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        a {
+            color: #ff9605;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #718096;
+            font-size: 0.95em;
+        }
+        
+        .back-link:hover {
+            color: #2d3748;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .footer {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding: 25px 40px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid transparent;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Zurück zur Hauptseite</a>
+        
+        <h1>Methodik</h1>
+        
+        <h2>Datenquelle</h2>
+        <p>Die hier dargestellten Daten stammen aus dem <strong><a href="https://www.marktstammdatenregister.de/MaStR" target="_blank" rel="noopener noreferrer">Marktstammdatenregister (MaStR)</a></strong> der Bundesnetzagentur. Das MaStR ist das zentrale Register für alle Strom- und Gaserzeugungsanlagen in Deutschland.</p>        
+        <div class="info-box">
+            <p><strong>Aktualisierung:</strong> Die Daten werden täglich automatisch aus dem MaStR heruntergeladen und verarbeitet.</p>
+            <p><strong>Datenlizenz:</strong> Die MaStR-Daten stehen unter der <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)</a>.</p>
+        </div>
+        
+        <h2>Datenverarbeitung</h2>
+        <p>Für den Download und die Verarbeitung der MaStR-Daten wird die Python-Bibliothek <strong><a href="https://github.com/OpenEnergyPlatform/open-MaStR" target="_blank" rel="noopener noreferrer">open-MaStR</a></strong> verwendet. Diese Open-Source-Bibliothek vereinfacht den Zugriff auf die umfangreichen MaStR-Daten erheblich und ermöglicht eine automatisierte Aktualisierung.</p>
+        
+        <h2>Berechnung: Netto-Zubau und Bestand</h2>
+        <p>Die in den Visualisierungen dargestellten Werte berücksichtigen sowohl den Zubau als auch den Abbau von Photovoltaik-Anlagen:</p>
+        
+        <div class="info-box">
+            <p><strong>Netto-Zubau:</strong> Der jährliche Netto-Zubau ergibt sich aus der Differenz zwischen neu installierten Anlagen und abgebauten Anlagen im jeweiligen Jahr. Nur Anlagen mit dem Status "Dauerhaft stillgelegt" werden als Abbau berücksichtigt.</p>
+            
+            <p><strong>Installierte Leistung (Bestand):</strong> Die kumulierte installierte Leistung zeigt den Gesamtbestand an PV-Leistung zu einem bestimmten Zeitpunkt. Auch hier sind dauerhaft stillgelegte Anlagen bereits abgezogen.</p>
+        </div>
+                
+        <h2>Verwendete Technologien</h2>
+        <p>Diese Webseite wurde mit folgenden Technologien erstellt:</p>
+        <ul style="color: #4a5568; line-height: 1.8; margin-left: 30px; margin-bottom: 15px;">
+            <li><strong><a href="https://plotly.com/javascript/" target="_blank" rel="noopener noreferrer">Plotly.js</a></strong> - Interaktive Datenvisualisierung</li>
+            <li><strong><a href="https://github.com/OpenEnergyPlatform/open-MaStR" target="_blank" rel="noopener noreferrer">open-MaStR</a></strong> - Python-Bibliothek für MaStR-Datenzugriff</li>
+            <li><strong><a href="https://pandas.pydata.org/" target="_blank" rel="noopener noreferrer">Pandas</a></strong> - Python-Bibliothek für Datenverarbeitung und -analyse</li>
+            <li>HTML, CSS und JavaScript - Frontend-Entwicklung</li>
+        </ul>
+        
+    </div>
+    
+    <div class="footer">
+        <div class="footer-links">
+            <a href="index.html">Hauptseite</a>
+            <a href="impressum.html">Impressum</a>
+        </div>
+    </div>
+</body>
+</html>

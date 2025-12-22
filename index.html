@@ -77,7 +77,7 @@
         .footer {
             max-width: 1200px;
             margin: 20px auto 0;
-            padding: 25px 40px;
+            padding: 25px 20px;
             text-align: center;
         }
         
@@ -87,6 +87,7 @@
             font-size: 0.85em;  /* Etwas kleiner */
             margin-bottom: 15px;  /* Weniger Abstand */
             font-weight: normal;
+            line-height: 1.5;
         }
 
         .footer-links {
@@ -94,6 +95,7 @@
             justify-content: center;
             gap: 25px;  /* Etwas weniger Abstand */
             flex-wrap: wrap;
+            row-gap: 12px; 
         }
 
         .footer-links a {
@@ -102,12 +104,29 @@
             font-size: 0.85em;  /* Kleiner */
             font-weight: 400;  /* Weniger bold */
             transition: all 0.2s ease;  /* Nicht nur color */
+            white-space: nowrap;
             border-bottom: 1px solid transparent;  /* NEU: Für Hover-Effekt */
         }
 
         .footer-links a:hover {
             color: white;  /* Voll weiß */
             border-bottom: 1px solid rgba(255, 255, 255, 0.6);  /* Unterstrich statt underline */
+        }
+        
+        @media (max-width: 600px) {
+            .last-update {
+                font-size: 0.75em;     /* Kleinere Schrift auf Handy */
+                line-height: 1.4;      /* Kompakterer Zeilenabstand */
+            }
+            
+            .footer-links {
+                gap: 15px;             /* Weniger horizontaler Abstand */
+                row-gap: 10px;         /* Weniger vertikaler Abstand */
+            }
+            
+            .footer-links a {
+                font-size: 0.8em;      /* Kleinere Link-Schrift */
+            }
         }
 
     </style>
@@ -142,9 +161,9 @@
         <div class="last-update" id="lastUpdate">Letzte Aktualisierung: -</div>
         
         <div class="footer-links">
-            <a href="#methodik">Methodik</a>
-            <a href="#" id="downloadLink">Rohdaten herunterladen</a>
-            <a href="#impressum">Impressum</a>
+            <a href="methodology.html">Methodik</a>
+            <a href="#" id="downloadLink">Daten herunterladen</a>
+            <a href="impressum.html">Impressum</a>
         </div>
     </div>
 
@@ -250,6 +269,18 @@
             };
 
             Plotly.newPlot('powerChart', [trace], layout, config);
+            // Make title responsive
+            function updateChartTitle() {
+                const update = {
+                    'title.text': window.innerWidth < 600 
+                        ? 'Installierte PV-Leistung' 
+                        : 'Entwicklung der installierten PV-Leistung',
+                    'title.font.size': window.innerWidth < 600 ? 16 : 20
+                };
+                Plotly.relayout('powerChart', update);
+            }
+            updateChartTitle();
+            window.addEventListener('resize', updateChartTitle);
 
             // Calculate and display statistics
             const latestYear = data[data.length - 1].Jahr;
@@ -267,6 +298,25 @@
 
         // Load data when page loads
         loadData();
+        // Download CSV functionality
+        document.getElementById('downloadLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('solar_berlin_yearly.csv');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'solar_berlin_yearly.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Download fehlgeschlagen. Bitte versuchen Sie es erneut.');
+            }
+        });
     </script>
 </body>
 </html>
