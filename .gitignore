@@ -1,0 +1,15 @@
+# Python virtual environment
+venv/
+.env
+
+# Large data folders
+open_mastr/
+
+# Generated CSV data files
+solar_berlin.csv
+solar_berlin_cleaned.csv
+
+# OS specific files
+.DS_Store
+__pycache__/
+*.pyc

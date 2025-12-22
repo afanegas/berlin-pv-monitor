@@ -1,3 +1,21 @@
+
+"""
+Analysis_MaStR.py: Processes cleaned Berlin MaStR data into yearly statistics.
+
+This script takes the filtered Berlin solar dataset and calculates:
+1. Annual Gross Additions (Zubau) in terms of capacity (kW) and unit count.
+2. Annual Decommissioning (Abbau) in terms of capacity (kW) and unit count.
+3. Cumulative Net Capacity and Total Units currently in operation.
+4. Export of the time-series data for visualization or further reporting.
+
+Input:  solar_berlin_cleaned.csv
+Output: solar_berlin_yearly.csv
+"""
+
+__author__      = "afanegas"
+__version__     = "1.0"
+__date__        = "2025-12-22"
+
 # %%
 import pandas as pd
 
