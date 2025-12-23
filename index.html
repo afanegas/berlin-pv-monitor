@@ -16,6 +16,10 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        .js-plotly-plot .plotly .nsewdrag {
+            cursor: default !important;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -245,14 +249,17 @@
                     text: 'Entwicklung der installierten PV-Leistung',
                     font: { size: 20, color: '#2d3748' }
                 },
+                dragmode: false, // Disables dragging (pan/zoom) as the standard startup tool
                 xaxis: {
                     title: 'Jahr',
                     tickmode: 'linear',
+                    fixedrange: false, // Enables/Disables zooming on X axis
                     dtick: 1
                 },
                 yaxis: {
                     title: 'Kumulierte Leistung (MWp)',
-                    gridcolor: '#e2e8f0'
+                    gridcolor: '#e2e8f0',
+                    fixedrange: true // Enables zooming on Y axis
                 },
                 plot_bgcolor: '#f7fafc',
                 paper_bgcolor: 'white',
@@ -272,9 +279,9 @@
 
             const config = {
                 responsive: true,
-                displayModeBar: 'hover',
                 displaylogo: false,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+                modeBarButtons: [['zoom2d', 'toImage', 'resetScale2d']]  
+                //staticPlot: false, // This disables the ability to zoom/pan/interact with the data points, Must be false to show the modebar
             };
 
             Plotly.newPlot('powerChart', [trace], layout, config);
