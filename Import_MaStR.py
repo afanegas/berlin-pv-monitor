@@ -50,8 +50,21 @@ if __name__ == "__main__":
     # ### Import Berlin Units from the CSV, export to new CSV
     
     # %%
-    today = date.today().isoformat()
-    file_path = f"open_mastr/data/dataversion-{today}/bnetza_mastr_solar_raw.csv"
+    #today = date.today().isoformat()
+    #file_path = f"open_mastr/data/dataversion-{today}/bnetza_mastr_solar_raw.csv"
+
+    # Search for the download-directory dynamically
+    base_path = 'open_mastr/data/dataversion-*/bnetza_mastr_solar_raw.csv'
+    possible_files = glob.glob(base_path)
+    
+    if not possible_files:
+        print("Error: No downloaded data found in open_mastr/data/")
+        exit(1)
+    
+    # Pick the most recent file based on folder name/date
+    file_path = sorted(possible_files)[-1] 
+    print(f"Using data file: {file_path}")
+
     output_file = "solar_berlin.csv"
     output_file_cleaned = 'solar_berlin_cleaned.csv'
     

@@ -1,5 +1,21 @@
 #!/bin/bash
 
+################################################################################
+# master.sh: Automated MaStR Data Pipeline Orchestrator
+#
+# DESCRIPTION:
+#   This script manages the full end-to-end workflow for Berlin solar data:
+#   1. Sets up logging and performs house-keeping (deleting old logs).
+#   2. Activates the Python virtual environment.
+#   3. Executes the Data Import/Filter script (Import_MaStR.py).
+#   4. Executes the Statistical Analysis script (Analysis_MaStR.py).
+#   5. Synchronizes results with GitHub.
+#
+# AUTHOR: afanegas
+# VERSION: 1.0.0
+# DATE: 2025-12-22
+################################################################################
+
 # --- CONFIGURATION ---
 mkdir -p logs
 LOG_FILE="logs/process_log_$(date +'%Y-%m-%d').log"

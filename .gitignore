@@ -12,5 +12,7 @@ solar_berlin_cleaned.csv
 
 # OS specific files
 .DS_Store
+logs/
+*.log
 __pycache__/
 *.pyc
