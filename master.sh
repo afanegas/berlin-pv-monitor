@@ -16,6 +16,9 @@
 # DATE: 2025-12-22
 ################################################################################
 
+# Move to the project directory automatically (avoid private path in github)
+cd "$(dirname "$0")"
+
 # --- CONFIGURATION ---
 mkdir -p logs
 LOG_FILE="logs/process_log_$(date +'%Y-%m-%d').log"
