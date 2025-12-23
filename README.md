@@ -1,4 +1,4 @@
-# PV Berlin
+# Berliner PV-Monitor
 
 Analysis and visualization of photovoltaic installations in Berlin using data from Germany's Marktstammdatenregister (MaStR).
 
