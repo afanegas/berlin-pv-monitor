@@ -56,7 +56,7 @@ echo "Status: Syncing with GitHub..."
 git pull --rebase origin main
 
 # Add only the specific results
-git add -f solar_berlin_yearly.csv
+git add solar_berlin_yearly.csv
 git commit -m "Auto-update solar data: $(date +'%Y-%m-%d')"
 git push origin main
 
