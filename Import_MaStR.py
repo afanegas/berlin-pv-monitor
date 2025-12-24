@@ -26,18 +26,20 @@ import glob
 import shutil
 import os
 import pandas as pd
+os.environ["OUTPUT_PATH"] = "open_mastr"
+os.environ['NUMBER_OF_PROCESSES'] = "3"
 import sqlalchemy
 from open_mastr import Mastr
 from open_mastr.utils import orm
 from open_mastr.utils.helpers import create_db_query, db_query_to_csv, reverse_fill_basic_units
-os.environ["OUTPUT_PATH"] = "open_mastr"
-os.environ['NUMBER_OF_PROCESSES'] = "3"
+
 
 #If fol multiprocessing:
 if __name__ == "__main__":
   
     # Initialize the Mastr object
     db = Mastr()
+    print(f"DEBUG: Process count set to: {os.environ.get('NUMBER_OF_PROCESSES')}")
     
     print("Starting parallelized download on ...")
     db.download(data=["solar"])    
