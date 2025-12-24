@@ -39,7 +39,7 @@ if __name__ == "__main__":
     db = Mastr()
     
     print("Starting parallelized download on ...")
-    #db.download(data=["solar"])    
+    db.download(data=["solar"])    
     print("Converting to CSV...")
     db.to_csv(tables=["solar"], chunksize=50000)
     
