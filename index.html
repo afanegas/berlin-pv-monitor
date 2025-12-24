@@ -201,11 +201,11 @@
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="totalPower">-</div>
-                <div class="stat-label">Gesamtinstallierte Leistung (MWp)</div>
+                <div class="stat-label">Gesamtinstallierte Leistung</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="nettoZubau">-</div>
-                <div class="stat-label">Jahres Netto-Zubau (MWp)</div>
+                <div class="stat-label">Jahres Netto-Zubau</div>
             </div>
         </div>
         
@@ -291,6 +291,7 @@
             };
 
             const layout = {
+                height: window.innerWidth < 600 ? 350 : undefined,  //  smaller on mobile, auto on desktop
                 title: {
                     text: 'Entwicklung der installierten PV-Leistung in Berlin',
                     font: { size: 20, color: '#2d3748' }
@@ -344,10 +345,10 @@
                         'title.text': window.innerWidth < 600 
                             ? 'Installierte PV-Leistung' 
                             : 'Entwicklung der installierten PV-Leistung in Berlin',
-                        'title.font.size': window.innerWidth < 600 ? 16 : 20
+                        'title.font.size': window.innerWidth < 600 ? 16 : 20,
+                        'height': window.innerWidth < 600 ? 350 : undefined  // Add this line
                     };
-                    Plotly.relayout('powerChart', update);
-                    
+                    Plotly.relayout('powerChart', update);                    
                     // Update text visibility
                     Plotly.restyle('powerChart', {
                         'textposition': window.innerWidth < 600 ? 'none' : 'outside'
@@ -375,8 +376,8 @@
             const formattedDate = datumDownload.split('-').reverse().join('.');
 
             document.getElementById('currentYear').textContent = latestYear;
-            document.getElementById('totalPower').textContent = totalPower.toFixed(1);
-            document.getElementById('nettoZubau').textContent = nettoZubau.toFixed(1);
+            document.getElementById('totalPower').textContent = totalPower.toFixed(1) + ' MWp';
+            document.getElementById('nettoZubau').textContent = nettoZubau.toFixed(1) + ' MWp';
             document.getElementById('lastUpdate').textContent = `Letzte Aktualisierung: ${formattedDate}, Quelle: MaStR, Bundesnetzagentur, dl-de/by-2-0`;
         }
 
