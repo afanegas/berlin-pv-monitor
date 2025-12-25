@@ -50,7 +50,12 @@ if __name__ == "__main__":
     
     ################
     #Alternativ method, exportin only Berlin
-    #Building specialized Berlin query
+    #Manually create the directory because we bypassed db.to_csv()
+    today_str = date.today().strftime("%Y-%m-%d")
+    export_dir = os.path.join("open_mastr", "data", f"dataversion-{today_str}")
+    os.makedirs(export_dir, exist_ok=True)
+    print(f"Created export directory: {export_dir}")
+    #Building Master List & Query for Berlin
     reverse_fill_basic_units(technology=["solar"], engine=db.engine) # Rebuilds Master List, part of the original to_csv function
     solar_query = create_db_query(tech="solar", engine=db.engine)
     solar_query = solar_query.filter(sqlalchemy.text("Bundesland = 'Berlin'"))
