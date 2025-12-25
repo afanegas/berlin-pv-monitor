@@ -19,6 +19,9 @@
 # Move to the project directory automatically (avoid private path in github)
 cd "$(dirname "$0")"
 
+# Record start time
+START_TIME=$SECONDS
+
 # --- CONFIGURATION ---
 mkdir -p logs
 LOG_FILE="logs/process_log_$(date +'%Y-%m-%d').log"
@@ -52,14 +55,16 @@ python3 Analysis_MaStR.py
 
 # 4. Sync with GitHub 
 echo "Status: Syncing with GitHub..."
-# Get any HTML updates from laptop
-git pull --rebase origin main
-
-# Add only the specific results
 git add solar_berlin_yearly.csv
+git pull --rebase origin main
 git commit -m "Auto-update solar data: $(date +'%Y-%m-%d')"
 git push origin main
 
+# Calculate duration
+END_TIME=$SECONDS
+DURATION=$((END_TIME - START_TIME))
+
 echo "===================================================="
 echo "Finished Successfully: $(date)"
+echo "Total Execution Time: $(($DURATION / 60)) min $(($DURATION % 60)) sec"
 echo "===================================================="
