@@ -2,7 +2,7 @@
 
 Analysis and visualization of photovoltaic installations in Berlin using data from Germany's Marktstammdatenregister (MaStR).
 
-**View the Live Project:** [https://afanegas.github.io/pv-berlin/](https://afanegas.github.io/pv-berlin/)
+**View the Live Project:** <https://afanegas.github.io/berlin-pv-monitor/>
 
 ## Overview
 
