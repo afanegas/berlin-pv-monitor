@@ -27,7 +27,7 @@ import shutil
 import os
 import pandas as pd
 os.environ["OUTPUT_PATH"] = "open_mastr"
-os.environ['NUMBER_OF_PROCESSES'] = "4"
+os.environ['NUMBER_OF_PROCESSES'] = "1"
 import sqlalchemy
 from open_mastr import Mastr
 from open_mastr.utils import orm
