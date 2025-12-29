@@ -55,9 +55,28 @@ python3 Analysis_MaStR.py
 
 # 4. Sync with GitHub 
 echo "Status: Syncing with GitHub..."
+
+# Save the new CSV temporarily
+echo "Saving Temp-Copy of the csv..."
+cp solar_berlin_yearly.csv solar_berlin_yearly.csv.tmp
+
+# Fetch latest, reset to remote (discard local history)
+echo "Fetching..."
+git fetch origin main
+echo "Reseting local repository..."
+git reset --hard origin/main
+
+# Restore the new CSV
+echo "Restoring csv..."
+mv solar_berlin_yearly.csv.tmp solar_berlin_yearly.csv
+
+# Now stage and commit the CSV
+echo "Stagin and commiting the csv..."
 git add solar_berlin_yearly.csv
-git pull --rebase origin main
 git commit -m "Auto-update solar data: $(date +'%Y-%m-%d')"
+
+# Push (should work cleanly now)
+echo "Pushing..."
 git push origin main
 
 # Calculate duration
