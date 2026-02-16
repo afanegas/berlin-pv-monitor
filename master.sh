@@ -12,8 +12,8 @@
 #   5. Synchronizes results with GitHub.
 #
 # AUTHOR: afanegas
-# VERSION: 1.0.0
-# DATE: 2025-12-22
+# VERSION: 1.0.1
+# DATE: 2026-02-16
 ################################################################################
 
 # Move to the project directory automatically (avoid private path in github)
@@ -56,9 +56,10 @@ python3 Analysis_MaStR.py
 # 4. Sync with GitHub 
 echo "Status: Syncing with GitHub..."
 
-# Save the new CSV temporarily
-echo "Saving Temp-Copy of the csv..."
+# Save the new CSVs temporarily
+echo "Saving Temp-Copies of the csv files..."
 cp solar_berlin_yearly.csv solar_berlin_yearly.csv.tmp
+cp solar_berlin_cleaned.csv solar_berlin_cleaned.csv.tmp
 
 # Fetch latest, reset to remote (discard local history)
 echo "Fetching..."
@@ -66,14 +67,15 @@ git fetch origin main
 echo "Reseting local repository..."
 git reset --hard origin/main
 
-# Restore the new CSV
-echo "Restoring csv..."
+# Restore the new CSVs
+echo "Restoring csv files..."
 mv solar_berlin_yearly.csv.tmp solar_berlin_yearly.csv
+mv solar_berlin_cleaned.csv.tmp solar_berlin_cleaned.csv
 
-# Now stage and commit the CSV
-echo "Stagin and commiting the csv..."
-git add solar_berlin_yearly.csv
-git commit -m "Auto-update solar data: $(date +'%Y-%m-%d')"
+# Now stage and commit the CSVs
+echo "Staging and commiting the data..."
+git add solar_berlin_yearly.csv solar_berlin_cleaned.csv
+git commit -m "Auto-update solar data (yearly & raw): $(date +'%Y-%m-%d')"
 
 # Push (should work cleanly now)
 echo "Pushing..."
