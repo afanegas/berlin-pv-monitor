@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-locale-de-latest.js"></script>
     <script>
-        Plotly.setPlotConfig({locale: 'de'});
+        Plotly.setPlotConfig({ locale: 'de' });
     </script>
     <style>
         * {
@@ -20,51 +21,52 @@
         .js-plotly-plot .plotly .nsewdrag {
             cursor: default !important;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #F5BD25 0%, #ff9605 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
         }
-        
+
         h1 {
             color: #2d3748;
             margin-bottom: 10px;
             font-size: 2.5em;
             text-align: center;
         }
-        
+
         .subtitle {
             color: #718096;
             margin-bottom: 30px;
             font-size: 1.1em;
         }
-        
+
         .chart-container {
             margin: 30px 0;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .hoverlayer .hovertext {
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)) !important;
         }
-        
+
         .stats {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center; /* This centers the boxes */
+            justify-content: center;
+            /* This centers the boxes */
             gap: 20px;
             margin-top: 30px;
         }
@@ -76,8 +78,9 @@
             border-radius: 10px;
             text-align: center;
             /* Give the cards a flexible base width so they grow/shrink nicely */
-            flex: 1 1 250px; 
-            max-width: 400px; /* Prevents cards from getting too wide on desktop */
+            flex: 1 1 250px;
+            max-width: 400px;
+            /* Prevents cards from getting too wide on desktop */
         }
 
         @media (min-width: 650px) and (max-width: 900px) {
@@ -86,13 +89,13 @@
                 max-width: 100%;
             }
         }
-        
+
         .stat-value {
             font-size: 2em;
             font-weight: bold;
             margin-bottom: 5px;
         }
-        
+
         .stat-label {
             font-size: 0.9em;
             opacity: 0.9;
@@ -104,12 +107,15 @@
             padding: 25px 20px;
             text-align: center;
         }
-        
+
         .last-update {
             text-align: center;
-            color: rgba(255, 255, 255, 0.85);  /* Weiß mit 85% Transparenz */
-            font-size: 0.85em;  /* Etwas kleiner */
-            margin-bottom: 15px;  /* Weniger Abstand */
+            color: rgba(255, 255, 255, 0.85);
+            /* Weiß mit 85% Transparenz */
+            font-size: 0.85em;
+            /* Etwas kleiner */
+            margin-bottom: 15px;
+            /* Weniger Abstand */
             font-weight: normal;
             line-height: 1.5;
         }
@@ -117,41 +123,55 @@
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 25px;  /* Etwas weniger Abstand */
+            gap: 25px;
+            /* Etwas weniger Abstand */
             flex-wrap: wrap;
-            row-gap: 12px; 
+            row-gap: 12px;
         }
 
         .footer-links a {
-            color: rgba(255, 255, 255, 0.9);  /* Weiß mit 90% Transparenz */
+            color: rgba(255, 255, 255, 0.9);
+            /* Weiß mit 90% Transparenz */
             text-decoration: none;
-            font-size: 0.85em;  /* Kleiner */
-            font-weight: 400;  /* Weniger bold */
-            transition: all 0.2s ease;  /* Nicht nur color */
+            font-size: 0.85em;
+            /* Kleiner */
+            font-weight: 400;
+            /* Weniger bold */
+            transition: all 0.2s ease;
+            /* Nicht nur color */
             white-space: nowrap;
-            border-bottom: 1px solid transparent;  /* NEU: Für Hover-Effekt */
+            border-bottom: 1px solid transparent;
+            /* NEU: Für Hover-Effekt */
         }
 
         .footer-links a:hover {
-            color: white;  /* Voll weiß */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.6);  /* Unterstrich statt underline */
+            color: white;
+            /* Voll weiß */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            /* Unterstrich statt underline */
         }
-        
+
         @media (max-width: 600px) {
             .last-update {
-                font-size: 0.75em;     /* Kleinere Schrift auf Handy */
-                line-height: 1.4;      /* Kompakterer Zeilenabstand */
+                font-size: 0.75em;
+                /* Kleinere Schrift auf Handy */
+                line-height: 1.4;
+                /* Kompakterer Zeilenabstand */
             }
-            
+
             .footer-links {
-                gap: 15px;             /* Weniger horizontaler Abstand */
-                row-gap: 10px;         /* Weniger vertikaler Abstand */
+                gap: 15px;
+                /* Weniger horizontaler Abstand */
+                row-gap: 10px;
+                /* Weniger vertikaler Abstand */
             }
-            
+
             .footer-links a {
-                font-size: 0.8em;      /* Kleinere Link-Schrift */
+                font-size: 0.8em;
+                /* Kleinere Link-Schrift */
             }
         }
+
         /* Sun Icon Styling */
         .sun-icon {
             display: inline-block;
@@ -174,27 +194,31 @@
 
         @media (max-width: 600px) {
             h1 {
-                font-size: 1.8em; /* Slightly smaller for mobile */
+                font-size: 1.8em;
+                /* Slightly smaller for mobile */
                 line-height: 1.2;
             }
-            
+
             .mobile-break {
-                display: block; /* Force the break on mobile */
+                display: block;
+                /* Force the break on mobile */
             }
 
             .sun-icon {
                 width: 32px;
                 height: 32px;
                 margin-bottom: 5px;
-                display: block; /* Center sun above text on very small screens */
+                display: block;
+                /* Center sun above text on very small screens */
                 margin-left: auto;
                 margin-right: auto;
             }
         }
+
         .toggle-container {
-        display: flex;
-        justify-content: center;
-        margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
         }
 
         .toggle-wrapper {
@@ -202,7 +226,7 @@
             background: #f0f0f0;
             border-radius: 25px;
             padding: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .toggle-btn {
@@ -231,70 +255,247 @@
         }
 
         @media (min-width: 1024px) {
-            body {
+            #app-content {
                 transform: scale(0.8);
                 transform-origin: top center;
             }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalScale 0.3s ease-out;
+        }
+
+        @keyframes modalScale {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            color: #2d3748;
+            font-size: 1.5em;
+        }
+
+        .data-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .data-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .data-card:hover {
+            border-color: #ff9605;
+            background: #fffaf0;
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 0.85em;
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #F5BD25 0%, #ff9605 100%);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f7fafc;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #718096;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        @media (max-width: 500px) {
+            .data-options {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>
-            <svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="5"/>
-                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" 
-                    stroke="#F5BD25" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Berliner <br class="mobile-break">
-            <span class="no-wrap">PV-Monitor</span>
-        </h1>
-        
-        <div class="chart-container">
-            <div id="powerChart"></div>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="currentYear">-</div>
-                <div class="stat-label">Aktuelles Jahr</div>
+    <div id="app-content">
+        <div class="container">
+            <h1>
+                <svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="5" />
+                    <path
+                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                        stroke="#F5BD25" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Berliner <br class="mobile-break">
+                <span class="no-wrap">PV-Monitor</span>
+            </h1>
+
+            <div class="chart-container">
+                <div id="powerChart"></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="totalValue">-</div>
-                <div class="stat-label" id="totalLabel">Gesamtinstallierte Leistung</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="nettoZubauValue">-</div>
-                <div class="stat-label" id="nettoZubauLabel">Jahres Netto-Zubau</div>
-            </div>
-        </div>
-        </div>
-        </div>
-        
-        <div class="toggle-container">
-            <div class="toggle-wrapper">
-                <button class="toggle-btn active" data-view="power">
-                    <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
-                        <path d="M13 2L3 14h8l-1 8 10-12h-8z"/>
-                    </svg>
-                    <span>Leistung</span>
-                </button>
-                <button class="toggle-btn" data-view="units">
-                    <span class="toggle-icon" style="font-weight: bold;">#</span>
-                    <span>Anzahl</span>
-                </button>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="currentYear">-</div>
+                    <div class="stat-label">Aktuelles Jahr</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalValue">-</div>
+                    <div class="stat-label" id="totalLabel">Gesamtinstallierte Leistung</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="nettoZubauValue">-</div>
+                    <div class="stat-label" id="nettoZubauLabel">Jahres Netto-Zubau</div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div class="toggle-container">
+        <div class="toggle-wrapper">
+            <button class="toggle-btn active" data-view="power">
+                <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8z" />
+                </svg>
+                <span>Leistung</span>
+            </button>
+            <button class="toggle-btn" data-view="units">
+                <span class="toggle-icon" style="font-weight: bold;">#</span>
+                <span>Anzahl</span>
+            </button>
+        </div>
+    </div>
+    </div>
+
     <div class="footer">
         <div class="last-update" id="lastUpdate">Letzte Aktualisierung: -</div>
-        
+
         <div class="footer-links">
             <a href="methodology.html">Methodik</a>
-            <a href="#" id="downloadLink">Daten herunterladen</a>
-            <a href="https://energieatlas.berlin.de/" target="_blank" rel="noopener">Mehr Daten im Energieatlas Berlin</a>
+            <a href="#" id="openDownloadModal">Daten herunterladen</a>
+            <a href="https://energieatlas.berlin.de/" target="_blank" rel="noopener">Mehr Daten im Energieatlas
+                Berlin</a>
             <a href="impressum.html">Impressum</a>
+        </div>
+    </div>
+    </div> <!-- Ende #app-content -->
+
+    <!-- Modal für Downloads -->
+    <div class="modal-overlay" id="downloadModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <h2>Solar-Daten auswählen</h2>
+            </div>
+            <div class="data-options">
+                <div class="data-card">
+                    <div>
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Jahres-Statistiken</div>
+                        <div class="card-desc">Aggregierte Daten pro Jahr (MWp, Anzahl). Perfekt für eigene Diagramme.
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn" id="downloadStatsBtn">Download CSV</a>
+                </div>
+                <div class="data-card">
+                    <div>
+                        <div class="card-icon">🏢</div>
+                        <div class="card-title">Rohdaten (MaStR)</div>
+                        <div class="card-desc">Alle installierten PV-Anlagen in Berlin mit Details. (Größere Datei)
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn" id="downloadRawBtn">Download CSV</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -302,7 +503,7 @@
         // Parse CSV
         function parseCSV(csv) {
             const lines = csv.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim()); 
+            const headers = lines[0].split(',').map(h => h.trim());
             return lines.slice(1).map(line => {
                 const values = line.split(',');
                 return headers.reduce((obj, header, index) => {
@@ -327,7 +528,7 @@
                 processAndVisualize(data);
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.querySelector('.container').innerHTML += 
+                document.querySelector('.container').innerHTML +=
                     '<div style="color: red; padding: 20px; text-align: center;">' +
                     '<strong>Fehler:</strong> Die Datei solar_berlin_yearly.csv konnte nicht geladen werden.<br>' +
                     'Stellen Sie sicher, dass die Datei im selben Ordner wie diese HTML-Datei liegt.</div>';
@@ -336,14 +537,14 @@
 
         // Toggle functionality
         document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 // Remove active class from all buttons
                 document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 window.currentView = this.dataset.view;
-                
+
                 // Update chart
                 const newTrace = createTrace(window.chartData, window.currentView);
                 Plotly.restyle('powerChart', {
@@ -351,7 +552,7 @@
                     texttemplate: [newTrace.texttemplate],
                     hovertemplate: [newTrace.hovertemplate]
                 });
-                
+
                 // Update y-axis title and chart title
                 let titleText;
                 let yAxisTitle;
@@ -360,8 +561,8 @@
                     titleText = window.currentView === 'power' ? 'Installierte PV-Leistung' : 'Anzahl PV-Anlagen';
                 } else {
                     // Desktop titles
-                    titleText = window.currentView === 'power' 
-                        ? 'Entwicklung der <b style="color:#ff9605">installierten PV-Leistung</b> in Berlin' 
+                    titleText = window.currentView === 'power'
+                        ? 'Entwicklung der <b style="color:#ff9605">installierten PV-Leistung</b> in Berlin'
                         : 'Entwicklung der <b style="color:#ff9605">Anzahl von PV-Anlagen</b> in Berlin';
                 }
                 yAxisTitle = window.currentView === 'power' ? 'Kumulierte Leistung (MWp)' : 'Anzahl Anlagen';
@@ -393,10 +594,10 @@
             if (!window.currentView) {
                 window.currentView = 'power';
             }
-            
+
             // Determine starting year based on screen width
             const startYear = window.innerWidth < 600 ? 2017 : 2010;
-            
+
             // Convert kW to MW, filter based on screen width, and sort by year
             const data = rawData
                 .filter(row => row.Jahr >= startYear)
@@ -405,11 +606,11 @@
                     Power_MW: row.Bestand_Leistung_kW / 1000,
                     Netto_Zubau_MW: row.Netto_Zubau_Leistung_kW / 1000,
                     Anzahl_Gesamt: row.Bestand_Anzahl,
-                    Anzahl_Neu: row.Netto_Zubau_Anzahl 
+                    Anzahl_Neu: row.Netto_Zubau_Anzahl
                 }))
                 .sort((a, b) => a.Jahr - b.Jahr);
 
-                // Store data globally for chart updates
+            // Store data globally for chart updates
             window.chartData = data;
 
             // Create Bar Chart
@@ -418,7 +619,7 @@
             const layout = {
                 height: window.innerWidth < 600 ? 350 : undefined,  //  smaller on mobile, auto on desktop
                 title: {
-                    text: window.currentView === 'power' 
+                    text: window.currentView === 'power'
                         ? 'Entwicklung der installierten PV-Leistung in Berlin'
                         : 'Entwicklung der Anzahl von PV-Anlagen in Berlin',
                     font: { size: 20, color: '#2d3748' }
@@ -431,11 +632,11 @@
                     dtick: 1
                 },
                 yaxis: {
-                title: {
-                    text: window.currentView === 'power' ? 'Kumulierte Leistung (MWp)' : 'Anzahl Anlagen',
-                    standoff: 10
-                },
-                        gridcolor: '#e2e8f0',
+                    title: {
+                        text: window.currentView === 'power' ? 'Kumulierte Leistung (MWp)' : 'Anzahl Anlagen',
+                        standoff: 10
+                    },
+                    gridcolor: '#e2e8f0',
                     fixedrange: true,
                     tickformat: ',.0f'
                 },
@@ -443,7 +644,7 @@
                 paper_bgcolor: 'white',
                 hovermode: 'closest',
                 margin: { t: 60, r: 40, b: 60, l: 70 },
-                hoverlabel: {  
+                hoverlabel: {
                     bgcolor: 'white',
                     font: {
                         color: '#4a5568',
@@ -472,7 +673,7 @@
             };
 
             Plotly.newPlot('powerChart', [trace], layout, config);
-            
+
             // Make title responsive and update data range on resize
             function updateChart() {
                 const newStartYear = window.innerWidth < 600 ? 2017 : 2010;
@@ -487,24 +688,24 @@
                         titleText = window.currentView === 'power' ? 'Installierte PV-Leistung' : 'Anzahl PV-Anlagen';
                     } else {
                         // Desktop titles
-                        titleText = window.currentView === 'power' 
-                            ? 'Entwicklung der <b style="color:#ff9605">installierten PV-Leistung</b> in Berlin' 
+                        titleText = window.currentView === 'power'
+                            ? 'Entwicklung der <b style="color:#ff9605">installierten PV-Leistung</b> in Berlin'
                             : 'Entwicklung der <b style="color:#ff9605">Anzahl von PV-Anlagen</b> in Berlin';
                     }
-                    
+
                     const update = {
                         'title.text': titleText,
                         'title.font.size': window.innerWidth < 600 ? 16 : 20,
                         'height': window.innerWidth < 600 ? 350 : undefined
                     };
-                    Plotly.relayout('powerChart', update);                    
+                    Plotly.relayout('powerChart', update);
                     // Update text visibility
                     Plotly.restyle('powerChart', {
                         'textposition': window.innerWidth < 600 ? 'none' : 'outside'
                     });
                 }
             }
-            
+
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
@@ -521,14 +722,14 @@
                     Netto_Zubau_MW: row.Netto_Zubau_Leistung_kW / 1000
                 }))
                 .sort((a, b) => a.Jahr - b.Jahr);
-            
+
             updateStats(allData);
-            
+
 
         }
         function createTrace(data, view) {
             const isPower = view === 'power';
-            
+
             return {
                 x: data.map(d => d.Jahr),
                 y: isPower ? data.map(d => d.Power_MW) : data.map(d => d.Anzahl_Gesamt),
@@ -545,7 +746,7 @@
                 //     size: 12,
                 //     color: '#2d3748'
                 // },
-                hovertemplate: isPower 
+                hovertemplate: isPower
                     ? '<b style="color:#2d3748">Jahr %{x}</b><br>' +
                     '<b>Bestand:</b><br>' +
                     'Leistung: %{customdata[0]:.1f} MWp<br>' +
@@ -573,59 +774,93 @@
             const formattedDate = datumDownload.split('-').reverse().join('.');
 
             document.getElementById('currentYear').textContent = latestYear;
-            
+
             if (window.currentView === 'power') {
-                document.getElementById('totalValue').textContent = 
-                    latestData.Power_MW.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' MWp';
+                document.getElementById('totalValue').textContent =
+                    latestData.Power_MW.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' MWp';
                 document.getElementById('totalLabel').textContent = 'Gesamtinstallierte Leistung';
-                
-                document.getElementById('nettoZubauValue').textContent = 
-                    latestData.Netto_Zubau_MW.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' MWp';
+
+                document.getElementById('nettoZubauValue').textContent =
+                    latestData.Netto_Zubau_MW.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' MWp';
                 document.getElementById('nettoZubauLabel').textContent = 'Jahres Netto-Zubau';
             } else {
                 // Units view
-                document.getElementById('totalValue').textContent = 
+                document.getElementById('totalValue').textContent =
                     latestData.Anzahl_Gesamt.toLocaleString('de-DE');
                 document.getElementById('totalLabel').textContent = 'Anlagen Gesamt';
-                
-                document.getElementById('nettoZubauValue').textContent = 
+
+                document.getElementById('nettoZubauValue').textContent =
                     '+' + latestData.Anzahl_Neu.toLocaleString('de-DE');
                 document.getElementById('nettoZubauLabel').textContent = 'Neu installierte Anlagen';
             }
-            
-            document.getElementById('lastUpdate').textContent = 
+
+            document.getElementById('lastUpdate').textContent =
                 `Letzte Aktualisierung: ${formattedDate}, Quelle: MaStR, Bundesnetzagentur`;
         }
         // Load data when page loads
         loadData();
 
-        // Download CSV functionality
-        document.getElementById('downloadLink').addEventListener('click', async (e) => {
+        // Modal Logic
+        const modal = document.getElementById('downloadModal');
+        const openBtn = document.getElementById('openDownloadModal');
+        const closeBtn = document.getElementById('closeModal');
+
+        openBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            modal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Function to trigger direct download
+        async function triggerDownload(filename, baseDisplayName) {
             try {
-                const response = await fetch('solar_berlin_yearly.csv');
+                const response = await fetch(filename);
+                if (!response.ok) throw new Error('File not found');
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                
-                // Create filename with date
-                const datumDownload = window.solarData[0].DatumDownload;
-                const formattedDateFilename = datumDownload.split('-').reverse().join('.');
-                a.download = `Berliner_PV-Monitor_Stand_${formattedDateFilename}.csv`;
-                
+
+                // Add date to filename for both options
+                if (window.solarData) {
+                    const datumDownload = window.solarData[0].DatumDownload;
+                    const formattedDateFilename = datumDownload.split('-').reverse().join('.');
+                    a.download = `${baseDisplayName}_Stand_${formattedDateFilename}.csv`;
+                } else {
+                    a.download = `${baseDisplayName}.csv`;
+                }
+
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
             } catch (error) {
                 console.error('Download failed:', error);
-                alert('Download fehlgeschlagen. Bitte versuchen Sie es erneut.');
+                alert(`Fehler: Die Datei ${filename} konnte nicht geladen werden.`);
             }
+        }
+
+        document.getElementById('downloadStatsBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            triggerDownload('solar_berlin_yearly.csv', 'Berliner_PV-Monitor_Statistiken');
+        });
+
+        document.getElementById('downloadRawBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            triggerDownload('solar_berlin_cleaned.csv', 'Berliner_PV-Monitor_Rohdaten');
         });
     </script>
     <!-- Visit tracker -->
-    <script data-goatcounter="https://afanegas.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+    <script data-goatcounter="https://afanegas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
+
 </html>

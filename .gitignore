@@ -7,7 +7,7 @@ open_mastr/
 
 # Generated CSV data files
 solar_berlin.csv
-solar_berlin_cleaned.csv
+# solar_berlin_cleaned.csv (Synced to GitHub)
 
 
 # OS specific files
