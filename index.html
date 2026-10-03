@@ -783,11 +783,14 @@
                 }
             }
 
+            // Replace the previous handler: processAndVisualize runs again when the data range changes
             let resizeTimer;
-            window.addEventListener('resize', () => {
+            window.removeEventListener('resize', window.resizeHandler);
+            window.resizeHandler = () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(updateChart, 150);
-            });
+            };
+            window.addEventListener('resize', window.resizeHandler);
             updateChart();
 
             // Calculate and display statistics (always from full dataset)
@@ -796,7 +799,9 @@
                 .map(row => ({
                     Jahr: row.Jahr,
                     Power_MW: row.Bestand_Leistung_kW / 1000,
-                    Netto_Zubau_MW: row.Netto_Zubau_Leistung_kW / 1000
+                    Netto_Zubau_MW: row.Netto_Zubau_Leistung_kW / 1000,
+                    Anzahl_Gesamt: row.Bestand_Anzahl,
+                    Anzahl_Neu: row.Netto_Zubau_Anzahl
                 }))
                 .sort((a, b) => a.Jahr - b.Jahr);
 

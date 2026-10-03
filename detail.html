@@ -272,6 +272,22 @@
             background: white;
         }
 
+        .note {
+            margin-top: 22px;
+            font-size: 0.85em;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .note a {
+            color: var(--brand);
+            text-decoration: none;
+        }
+
+        .note a:hover {
+            text-decoration: underline;
+        }
+
         .footer {
             max-width: 1200px;
             margin: 20px auto 0;
@@ -435,6 +451,11 @@
             </div>
         </div>
 
+        <p class="note"><strong>Hinweis:</strong> Gezeigt werden die bis heute gemeldeten Anlagen. Viele Anlagen werden
+            erst Wochen oder Monate nach der Inbetriebnahme registriert. Die Werte der jüngsten Monate steigen deshalb
+            noch an, und Vergleiche mit dem Vorjahr fallen zunächst schlechter aus, als sie tatsächlich sind.
+            <a href="methodology.html">Mehr dazu in der Methodik</a>.</p>
+
     </div>
 
     <div class="footer">
@@ -485,7 +506,8 @@
             maximumFractionDigits: d ?? (state.metric === 'kw' ? 1 : 0)
         });
         // Zeitraum-Label; im laufenden Jahr wird auch das Vorjahr nur bis zum selben Monat gezählt
-        const periodLabel = y => cutoff(state.year) < 12 ? `Jan–${MONTHS[LAST_MONTH - 1]} ${y}` : `${y}`;
+        const periodLabel = y => cutoff(state.year) === 12 ? `${y}`
+            : LAST_MONTH === 1 ? `Jan ${y}` : `Jan–${MONTHS[LAST_MONTH - 1]} ${y}`;
         // Laufendes, noch unvollständiges Jahr wird in den Jahresgrafiken mit * markiert
         const yearTick = y => y === CUR_YEAR && LAST_MONTH < 12 ? `${y}*` : String(y);
         // Lange Kategorienamen auf schmalen Bildschirmen umbrechen
@@ -502,6 +524,10 @@
         // Bestand am Ende von Monat m im Jahr y (Zubau minus Stilllegungen)
         const bestand = (rows, y, m, extra = () => true) => sum(rows, r => (r[0] < y || (r[0] === y && r[1] <= m)) && extra(r));
 
+        // Legende am unteren Rand des Containers statt relativ zur Plotfläche: zusammen mit xaxis.automargin
+        // überdeckt sie die Achsenbeschriftung auch dann nicht, wenn sie auf schmalen Bildschirmen umbricht
+        const LEGEND = { orientation: 'h', yref: 'container', y: 0, yanchor: 'bottom', x: 0, font: { size: 11 } };
+
         const baseLayout = extra => Object.assign({
             height: 340,
             margin: { t: 16, r: 16, b: 40, l: 56 },
@@ -511,8 +537,8 @@
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
             hoverlabel: { bgcolor: 'white', bordercolor: '#cbd5e0', font: { color: '#2d3748', size: 12 }, align: 'left' },
-            legend: { orientation: 'h', y: -0.16, x: 0, font: { size: 11 } },
-            xaxis: { fixedrange: true },
+            legend: LEGEND,
+            xaxis: { fixedrange: true, automargin: true },
             yaxis: { fixedrange: true, gridcolor: '#edf2f7', zeroline: false }
         }, extra);
         const CONFIG = { responsive: true, displayModeBar: false };
@@ -637,7 +663,7 @@
                 barmode: 'stack',
                 bargap: 0.25,
                 showlegend: true,
-                xaxis: { fixedrange: true, type: 'category' },
+                xaxis: { fixedrange: true, automargin: true, type: 'category' },
                 yaxis: {
                     fixedrange: true, gridcolor: '#edf2f7',
                     title: { text: state.metric === 'kw' ? 'MWp' : 'Anlagen', standoff: 8 }
@@ -678,8 +704,8 @@
                 bargroupgap: 0.08,
                 height: 380,
                 margin: { t: 16, r: 16, b: 40, l: 150 },
-                legend: { orientation: 'h', y: -0.14, x: 0, traceorder: 'reversed', font: { size: 11 } },
-                xaxis: { fixedrange: true, ticksuffix: ' %', gridcolor: '#edf2f7', zeroline: false },
+                legend: { ...LEGEND, traceorder: 'reversed' },
+                xaxis: { fixedrange: true, automargin: true, ticksuffix: ' %', gridcolor: '#edf2f7', zeroline: false },
                 yaxis: { fixedrange: true, automargin: true }
             }), CONFIG);
         }
@@ -708,9 +734,10 @@
             Plotly.react('chartTime', traces, baseLayout({
                 barmode: 'stack',
                 bargap: 0.25,
-                height: 380,
-                legend: { orientation: 'h', y: -0.14, x: 0, traceorder: 'normal', font: { size: 11 } },
-                xaxis: { fixedrange: true, type: 'category' },
+                // Auf schmalen Bildschirmen steht jeder Legendeneintrag in einer eigenen Zeile
+                height: window.innerWidth < 600 ? 420 : 380,
+                legend: { ...LEGEND, traceorder: 'normal' },
+                xaxis: { fixedrange: true, automargin: true, type: 'category' },
                 yaxis: { fixedrange: true, ticksuffix: ' %', range: [0, 100], gridcolor: '#edf2f7' }
             }), CONFIG);
         }
@@ -773,7 +800,6 @@
     </script>
     <!-- Visit tracker -->
     <script data-goatcounter="https://afanegas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-    </script>
 </body>
 
 </html>
