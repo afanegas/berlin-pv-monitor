@@ -4,7 +4,8 @@ Analysis_MaStR.py: Processes cleaned Berlin MaStR data into yearly statistics.
 
 This script takes the filtered Berlin solar dataset and calculates:
 1. Annual Gross Additions (Zubau) in terms of capacity (kW) and unit count.
-2. Annual Decommissioning (Abbau) in terms of capacity (kW) and unit count.
+2. Annual Decommissioning (Abbau) in terms of capacity (kW) and unit count
+   (permanently and temporarily decommissioned units).
 3. Cumulative Net Capacity and Total Units currently in operation.
 4. Export of the time-series data for visualization or further reporting.
 
@@ -31,21 +32,35 @@ df = pd.read_csv(INPUT_FILE, low_memory=False)
 # 2. Datum konvertieren
 df['Inbetriebnahmedatum'] = pd.to_datetime(df['Inbetriebnahmedatum'], errors='coerce')
 df['DatumEndgueltigeStilllegung'] = pd.to_datetime(df['DatumEndgueltigeStilllegung'], errors='coerce')
+df['DatumBeginnVoruebergehendeStilllegung'] = pd.to_datetime(df['DatumBeginnVoruebergehendeStilllegung'], errors='coerce')
 df['DatumDownload'] = pd.to_datetime(df['DatumDownload'], errors='coerce')
+
+# %%
+# 3. Stilllegungen
+# Vorübergehend stillgelegte Einheiten gelten ab Beginn der Stilllegung als stillgelegt. Nimmt eine Einheit den
+# Betrieb wieder auf, ist ihr Status wieder "In Betrieb" und die Unterbrechung wird ignoriert.
+STATUS_STILLGELEGT = ["Endgültig stillgelegt", "Vorübergehend stillgelegt"]
+STATUS_GEZAEHLT = ["In Betrieb"] + STATUS_STILLGELEGT
+df['Stilllegungsdatum'] = (df['DatumEndgueltigeStilllegung']
+                           .fillna(df['DatumBeginnVoruebergehendeStilllegung'])
+                           .where(df['EinheitBetriebsstatus'].isin(STATUS_STILLGELEGT)))
+# Einzelne Einheiten sind mit einer Stilllegung vor der Inbetriebnahme gemeldet: frühestens am Tag der Inbetriebnahme
+df['Stilllegungsdatum'] = df['Stilllegungsdatum'].mask(df['Stilllegungsdatum'] < df['Inbetriebnahmedatum'],
+                                                       df['Inbetriebnahmedatum'])
 
 # %%
 # --- DYNAMISCHE JAHRESSPANNE ---
 min_year = int(df['Inbetriebnahmedatum'].dt.year.min())
-max_year = int(max(df['Inbetriebnahmedatum'].dt.year.max(), df['DatumEndgueltigeStilllegung'].dt.year.max()))
+max_year = int(max(df['Inbetriebnahmedatum'].dt.year.max(), df['Stilllegungsdatum'].dt.year.max()))
 
 # --- 1. JAHR DataFrame ERSTELLEN ---
 df_year = pd.DataFrame({'Jahr': range(min_year, max_year + 1)})
 #sace Datumdownload in a separate column
 df_year['DatumDownload'] = df['DatumDownload'].iloc[0]
 
-# --- 2. ZUBAU ("In Betrieb" + "Endgültig stillgelegt") ---
+# --- 2. ZUBAU ("In Betrieb" + stillgelegt) ---
 # Stillgelegte Einheiten zählen im Jahr ihrer Inbetriebnahme als Zubau, da sie in Schritt 3 wieder abgezogen werden
-df_year_zubau = df[df['EinheitBetriebsstatus'].isin(["In Betrieb", "Endgültig stillgelegt"])].copy()
+df_year_zubau = df[df['EinheitBetriebsstatus'].isin(STATUS_GEZAEHLT)].copy()
 df_year_zubau['Jahr'] = df_year_zubau['Inbetriebnahmedatum'].dt.year
 
 zubau_stats = df_year_zubau.groupby('Jahr').agg(
@@ -53,9 +68,9 @@ zubau_stats = df_year_zubau.groupby('Jahr').agg(
     Zubau_Anzahl=('Bruttoleistung', 'count')
 ).reset_index()
 
-# --- 3. ABBAU ("Endgültig stillgelegt") ---
-df_year_abbau = df[df['EinheitBetriebsstatus'] == "Endgültig stillgelegt"].copy()
-df_year_abbau['Jahr'] = df_year_abbau['DatumEndgueltigeStilllegung'].dt.year
+# --- 3. ABBAU (endgültig oder vorübergehend stillgelegt) ---
+df_year_abbau = df[df['EinheitBetriebsstatus'].isin(STATUS_STILLGELEGT)].copy()
+df_year_abbau['Jahr'] = df_year_abbau['Stilllegungsdatum'].dt.year
 
 abbau_stats = df_year_abbau.groupby('Jahr').agg(
     Abbau_Leistung_kW=('Bruttoleistung', 'sum'),
@@ -100,7 +115,7 @@ print("Export erfolgreich: Die Datei 'solar_berlin_yearly.csv' wurde erstellt.")
 # --- 8. DETAIL-WÜRFEL (für detail.html) ---
 # Monatliche Zu- und Abgänge je Anlagentyp und Merkmal. Gleicher Statusfilter wie beim Jahres-CSV,
 # damit der Bestand auf beiden Seiten identisch ist.
-df_detail = df[df['EinheitBetriebsstatus'].isin(["In Betrieb", "Endgültig stillgelegt"])].copy()
+df_detail = df[df['EinheitBetriebsstatus'].isin(STATUS_GEZAEHLT)].copy()
 
 # Balkonkraftwerk: im MaStR als steckerfertig gemeldet ODER Bruttoleistung <= 2 kWp und Nettonennleistung <= 800 W
 ist_stecker = df_detail['ArtDerSolaranlage'].str.startswith('Stecker', na=False)
@@ -143,7 +158,7 @@ for name, (spalte, mapping) in DETAIL_MAPPING.items():
     detail_kategorien[name] = kategorie
 
 DETAIL_MIN_YEAR = 2009  # ältere Jahre werden in diesem Jahr zusammengefasst (zählen nur für den Bestand)
-ist_stillgelegt = df_detail['EinheitBetriebsstatus'] == "Endgültig stillgelegt"
+ist_stillgelegt = df_detail['EinheitBetriebsstatus'].isin(STATUS_STILLGELEGT)
 detail = {
     'stand': df['DatumDownload'].iloc[0].strftime('%Y-%m-%d'),
     'order': DETAIL_ORDER,
@@ -154,7 +169,7 @@ for name, kategorie in detail_kategorien.items():
     zeilen = []
     # Zeile: [Jahr, Monat, Segment, Kategorie, Anzahl, kW]; Stilllegungen mit negativem Vorzeichen
     for vorzeichen, datum, maske in ((1, df_detail['Inbetriebnahmedatum'], slice(None)),
-                                     (-1, df_detail['DatumEndgueltigeStilllegung'], ist_stillgelegt)):
+                                     (-1, df_detail['Stilllegungsdatum'], ist_stillgelegt)):
         ereignisse = pd.DataFrame({
             'Jahr': datum.dt.year.clip(lower=DETAIL_MIN_YEAR),
             'Monat': datum.dt.month,
