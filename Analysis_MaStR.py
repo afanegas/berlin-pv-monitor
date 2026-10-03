@@ -39,8 +39,9 @@ df_year = pd.DataFrame({'Jahr': range(min_year, max_year + 1)})
 #sace Datumdownload in a separate column
 df_year['DatumDownload'] = df['DatumDownload'].iloc[0]
 
-# --- 2. ZUBAU ("In Betrieb") ---
-df_year_zubau = df[df['EinheitBetriebsstatus'] == "In Betrieb"].copy()
+# --- 2. ZUBAU ("In Betrieb" + "Endgültig stillgelegt") ---
+# Stillgelegte Einheiten zählen im Jahr ihrer Inbetriebnahme als Zubau, da sie in Schritt 3 wieder abgezogen werden
+df_year_zubau = df[df['EinheitBetriebsstatus'].isin(["In Betrieb", "Endgültig stillgelegt"])].copy()
 df_year_zubau['Jahr'] = df_year_zubau['Inbetriebnahmedatum'].dt.year
 
 zubau_stats = df_year_zubau.groupby('Jahr').agg(
