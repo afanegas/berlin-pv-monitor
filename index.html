@@ -4,7 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berliner PV-Monitor</title>
+    <title>Berliner PV-Monitor – Photovoltaik-Ausbau in Berlin</title>
+    <meta name="description"
+        content="Wie viel Photovoltaik ist in Berlin installiert? Der Berliner PV-Monitor zeigt die installierte Leistung und die Anzahl der Solaranlagen pro Jahr – täglich aktualisiert aus dem Marktstammdatenregister.">
+    <link rel="canonical" href="https://afanegas.github.io/berlin-pv-monitor/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Berliner PV-Monitor">
+    <meta property="og:title" content="Berliner PV-Monitor – Photovoltaik-Ausbau in Berlin">
+    <meta property="og:description"
+        content="Wie viel Photovoltaik ist in Berlin installiert? Der Berliner PV-Monitor zeigt die installierte Leistung und die Anzahl der Solaranlagen pro Jahr – täglich aktualisiert aus dem Marktstammdatenregister.">
+    <meta property="og:url" content="https://afanegas.github.io/berlin-pv-monitor/">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:image" content="https://afanegas.github.io/berlin-pv-monitor/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-locale-de-latest.js"></script>
@@ -106,6 +120,16 @@
             margin: 20px auto 0;
             padding: 25px 20px;
             text-align: center;
+        }
+
+        .intro-text {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            line-height: 1.5;
         }
 
         .last-update {
@@ -453,6 +477,12 @@
                 </button>
             </div>
         </div>
+
+        <p class="intro-text">
+            Der Berliner PV-Monitor zeigt den Ausbau der Photovoltaik in Berlin: die installierte Leistung und die
+            Anzahl der Solaranlagen im Jahresverlauf. Die Daten stammen aus dem Marktstammdatenregister (MaStR) der
+            Bundesnetzagentur und werden täglich aktualisiert.
+        </p>
 
         <div class="footer">
             <div class="last-update" id="lastUpdate">Letzte Aktualisierung: -</div>
