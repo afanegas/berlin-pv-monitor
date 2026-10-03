@@ -8,8 +8,11 @@ This script takes the filtered Berlin solar dataset and calculates:
 3. Cumulative Net Capacity and Total Units currently in operation.
 4. Export of the time-series data for visualization or further reporting.
 
+5. Monthly detail cube (plant type, size class, usage, feed-in type, orientation, tilt)
+   for the detail dashboard (detail.html).
+
 Input:  solar_berlin_cleaned.csv
-Output: solar_berlin_yearly.csv
+Output: solar_berlin_yearly.csv, solar_berlin_detail.json
 """
 
 __author__      = "afanegas"
@@ -17,6 +20,7 @@ __version__     = "1.0"
 __date__        = "2025-12-22"
 
 # %%
+import json
 import pandas as pd
 
 
@@ -91,3 +95,81 @@ df_year.to_csv(OUTPUT_FILE,
               encoding='utf-8-sig')  # Sorgt für korrekte Umlaute in Excel
 
 print("Export erfolgreich: Die Datei 'solar_berlin_yearly.csv' wurde erstellt.")
+
+# %%
+# --- 8. DETAIL-WÜRFEL (für detail.html) ---
+# Monatliche Zu- und Abgänge je Anlagentyp und Merkmal. Gleicher Statusfilter wie beim Jahres-CSV,
+# damit der Bestand auf beiden Seiten identisch ist.
+df_detail = df[df['EinheitBetriebsstatus'].isin(["In Betrieb", "Endgültig stillgelegt"])].copy()
+
+# Balkonkraftwerk: im MaStR als steckerfertig gemeldet ODER Bruttoleistung <= 2 kWp und Nettonennleistung <= 800 W
+ist_stecker = df_detail['ArtDerSolaranlage'].str.startswith('Stecker', na=False)
+ist_klein = (df_detail['Bruttoleistung'] <= 2) & (df_detail['Nettonennleistung'] <= 0.8)
+df_detail['Segment'] = (ist_stecker | ist_klein).astype(int)  # 0 = Gebäude/Freifläche, 1 = Balkonkraftwerk
+
+KEINE_ANGABE = 'keine Angabe'
+# Reihenfolge der Kategorien je Merkmal (Index = Kategorie-Nummer im Würfel)
+DETAIL_ORDER = {
+    'groesse': ['≤ 2 kWp', '2–10 kWp', '10–30 kWp', '30–100 kWp', '100–750 kWp', '> 750 kWp'],
+    'nutzung': ['Haushalt', 'Gewerbe, Handel, Dienstl.', 'Öffentliches Gebäude', 'Industrie', 'Sonstige', KEINE_ANGABE],
+    'einspeisung': ['Teileinspeisung / Eigenverbrauch', 'Volleinspeisung', KEINE_ANGABE],
+    'ausrichtung': ['Süd', 'Süd-West', 'Süd-Ost', 'Ost-West', 'Ost', 'West', 'Nord / NO / NW', KEINE_ANGABE],
+    'neigung': ['< 5° (flach)', '5–20°', '21–40°', '41–60°', '61–89°', '90° (vertikal)', KEINE_ANGABE],
+}
+# MaStR-Werte -> Kategorien (nicht aufgeführte Werte bleiben unverändert)
+DETAIL_MAPPING = {
+    'nutzung': ('Nutzungsbereich', {'Gewerbe, Handel und Dienstleistungen': 'Gewerbe, Handel, Dienstl.',
+                                    'Landwirtschaft': 'Sonstige'}),
+    'einspeisung': ('Einspeisungsart', {'Teileinspeisung (einschließlich Eigenverbrauch)': 'Teileinspeisung / Eigenverbrauch'}),
+    'ausrichtung': ('Hauptausrichtung', {'Nord': 'Nord / NO / NW', 'Nord-Ost': 'Nord / NO / NW',
+                                         'Nord-West': 'Nord / NO / NW', 'nachgeführt': KEINE_ANGABE}),
+    'neigung': ('HauptausrichtungNeigungswinkel', {'unter 5 Grad (horizontal)': '< 5° (flach)', '5 - 20 Grad': '5–20°',
+                                                   '21 - 40 Grad': '21–40°', '41 - 60 Grad': '41–60°',
+                                                   '61 - 89 Grad': '61–89°', '90 Grad (vertikal)': '90° (vertikal)',
+                                                   'Nachgeführt': KEINE_ANGABE}),
+}
+
+detail_kategorien = {
+    'groesse': pd.cut(df_detail['Bruttoleistung'], bins=[0, 2, 10, 30, 100, 750, float('inf')],
+                      labels=DETAIL_ORDER['groesse']).astype(str)
+}
+for name, (spalte, mapping) in DETAIL_MAPPING.items():
+    # MaStR liefert teils Werte mit Leerzeichen am Ende
+    kategorie = df_detail[spalte].str.strip().replace(mapping).fillna(KEINE_ANGABE)
+    unbekannt = ~kategorie.isin(DETAIL_ORDER[name])
+    if unbekannt.any():
+        print(f"Hinweis: unbekannte Werte in {spalte} als '{KEINE_ANGABE}' gezählt: {sorted(kategorie[unbekannt].unique())}")
+        kategorie[unbekannt] = KEINE_ANGABE
+    detail_kategorien[name] = kategorie
+
+DETAIL_MIN_YEAR = 2009  # ältere Jahre werden in diesem Jahr zusammengefasst (zählen nur für den Bestand)
+ist_stillgelegt = df_detail['EinheitBetriebsstatus'] == "Endgültig stillgelegt"
+detail = {
+    'stand': df['DatumDownload'].iloc[0].strftime('%Y-%m-%d'),
+    'order': DETAIL_ORDER,
+    'dims': {},
+}
+for name, kategorie in detail_kategorien.items():
+    kategorie_nr = kategorie.map({k: i for i, k in enumerate(DETAIL_ORDER[name])})
+    zeilen = []
+    # Zeile: [Jahr, Monat, Segment, Kategorie, Anzahl, kW]; Stilllegungen mit negativem Vorzeichen
+    for vorzeichen, datum, maske in ((1, df_detail['Inbetriebnahmedatum'], slice(None)),
+                                     (-1, df_detail['DatumEndgueltigeStilllegung'], ist_stillgelegt)):
+        ereignisse = pd.DataFrame({
+            'Jahr': datum.dt.year.clip(lower=DETAIL_MIN_YEAR),
+            'Monat': datum.dt.month,
+            'Segment': df_detail['Segment'],
+            'Kategorie': kategorie_nr,
+            'kW': df_detail['Bruttoleistung'],
+        })[maske].dropna(subset=['Jahr'])
+        gruppen = ereignisse.groupby(['Jahr', 'Monat', 'Segment', 'Kategorie']).agg(
+            Anzahl=('kW', 'count'), kW=('kW', 'sum')).reset_index()
+        zeilen += [[int(g.Jahr), int(g.Monat), int(g.Segment), int(g.Kategorie),
+                    vorzeichen * int(g.Anzahl), round(vorzeichen * g.kW, 1)] for g in gruppen.itertuples()]
+    detail['dims'][name] = zeilen
+
+DETAIL_FILE = 'solar_berlin_detail.json'
+with open(DETAIL_FILE, 'w', encoding='utf-8') as f:
+    json.dump(detail, f, ensure_ascii=False, separators=(',', ':'))
+
+print(f"Export erfolgreich: Die Datei '{DETAIL_FILE}' wurde erstellt.")

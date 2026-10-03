@@ -10,6 +10,9 @@ solar_berlin.csv
 # solar_berlin_cleaned.csv (Synced to GitHub)
 
 
+# Local Claude Code configuration
+.claude/
+
 # OS specific files
 .DS_Store
 logs/

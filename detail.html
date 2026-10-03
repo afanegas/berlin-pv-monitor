@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail-Analyse – Berliner PV-Monitor</title>
+    <meta name="description"
+        content="Detail-Analyse des Photovoltaik-Ausbaus in Berlin: Zubau und Bestand im Vorjahresvergleich, Balkonkraftwerke, Größenklassen, Nutzungsbereich, Einspeisungsart und Ausrichtung – täglich aktualisiert aus dem Marktstammdatenregister.">
+    <link rel="canonical" href="https://afanegas.github.io/berlin-pv-monitor/detail.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Berliner PV-Monitor">
+    <meta property="og:title" content="Detail-Analyse – Berliner PV-Monitor">
+    <meta property="og:description"
+        content="Detail-Analyse des Photovoltaik-Ausbaus in Berlin: Zubau und Bestand im Vorjahresvergleich, Balkonkraftwerke, Größenklassen, Nutzungsbereich, Einspeisungsart und Ausrichtung – täglich aktualisiert aus dem Marktstammdatenregister.">
+    <meta property="og:url" content="https://afanegas.github.io/berlin-pv-monitor/detail.html">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:image" content="https://afanegas.github.io/berlin-pv-monitor/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-locale-de-latest.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand: #ff9605;
+            --ink: #2d3748;
+            --ink-2: #4a5568;
+            --muted: #718096;
+            --line: #e2e8f0;
+            --bg-soft: #f7fafc;
+            --good: #2f855a;
+            --bad: #c53030;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #F5BD25 0%, #ff9605 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--ink);
+        }
+
+        .js-plotly-plot .plotly .nsewdrag {
+            cursor: default !important;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 32px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 0.95em;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--ink);
+        }
+
+        .sun-icon {
+            display: inline-block;
+            vertical-align: middle;
+            width: 34px;
+            height: 34px;
+            margin-right: 8px;
+            fill: #F5BD25;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        h1 span {
+            color: var(--brand);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 0.95em;
+        }
+
+        /* Filterzeile */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 22px;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px;
+            background: var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            margin-bottom: 22px;
+        }
+
+        .filter label {
+            display: block;
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .seg {
+            display: inline-flex;
+            background: #edf0f4;
+            border-radius: 20px;
+            padding: 3px;
+        }
+
+        .seg button {
+            border: none;
+            background: transparent;
+            padding: 7px 14px;
+            border-radius: 17px;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .seg button.active {
+            background: linear-gradient(135deg, #F5BD25 0%, #ff9605 100%);
+            color: white;
+            box-shadow: 0 2px 6px rgba(255, 150, 5, 0.3);
+        }
+
+        select {
+            padding: 7px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            font-size: 0.85em;
+            background: white;
+            color: var(--ink);
+        }
+
+        /* KPI-Kacheln */
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .kpi {
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--brand);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .kpi-label {
+            font-size: 0.8em;
+            color: var(--muted);
+        }
+
+        .kpi-value {
+            font-size: 1.7em;
+            font-weight: 700;
+            margin: 4px 0;
+        }
+
+        .kpi-delta {
+            font-size: 0.82em;
+            color: var(--ink-2);
+        }
+
+        .kpi-delta b.up {
+            color: var(--good);
+        }
+
+        .kpi-delta b.down {
+            color: var(--bad);
+        }
+
+        /* Karten */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px 18px 8px;
+            min-width: 0;
+        }
+
+        .card.wide {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            font-size: 1.05em;
+        }
+
+        .card .hint {
+            font-size: 0.8em;
+            color: var(--muted);
+            margin-top: 3px;
+            line-height: 1.4;
+        }
+
+        .card-head {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .seg.small button {
+            padding: 4px 11px;
+            font-size: 0.78em;
+        }
+
+        /* Block mit gemeinsamer Merkmal-Auswahl für beide Grafiken */
+        .panel {
+            grid-column: 1 / -1;
+            background: var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            min-width: 0;
+        }
+
+        .panel-head {
+            margin-bottom: 16px;
+        }
+
+        .panel-head h2 {
+            font-size: 1.2em;
+        }
+
+        .panel-head .hint {
+            font-size: 0.8em;
+            color: var(--muted);
+            margin: 3px 0 12px;
+        }
+
+        .panel-head .seg {
+            flex-wrap: wrap;
+            background: #e6eaf0;
+        }
+
+        .panel .card {
+            background: white;
+        }
+
+        .footer {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .last-update {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            row-gap: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.85em;
+            white-space: nowrap;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        @media (max-width: 900px) {
+            .kpis {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .kpi-value {
+                font-size: 1.3em;
+            }
+
+            .seg button {
+                padding: 7px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Zurück zur Übersicht</a>
+        <header>
+            <h1>
+                <svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="5" />
+                    <path
+                        d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                        stroke="#F5BD25" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Berliner PV-Monitor – <span>Detail-Analyse</span>
+            </h1>
+            <p class="subtitle">Wer baut was? Zubau und Bestand nach Anlagentyp, Größe, Nutzung, Einspeisung und
+                Ausrichtung – mit Vorjahresvergleich.</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter">
+                <label>Kennzahl</label>
+                <div class="seg" data-key="metric">
+                    <button data-val="kw" class="active">Leistung</button>
+                    <button data-val="n">Anzahl</button>
+                </div>
+            </div>
+            <div class="filter">
+                <label>Anlagentyp</label>
+                <div class="seg" data-key="seg">
+                    <button data-val="all" class="active">Alle</button>
+                    <button data-val="pv">Ohne Balkon</button>
+                    <button data-val="bkw">Nur Balkon</button>
+                </div>
+            </div>
+            <div class="filter">
+                <label for="yearSel">Jahr</label>
+                <select id="yearSel"></select>
+            </div>
+        </div>
+
+        <div class="kpis" id="kpis"></div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Zubau im Jahresverlauf</h2>
+                <p class="hint">Kumulierter Brutto-Zubau nach Monat der Inbetriebnahme – ausgewähltes Jahr gegen die drei
+                    Vorjahre.</p>
+                <div id="chartYtd"></div>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <h2 id="titleSeg"></h2>
+                    <div class="seg small" data-key="viewSeg">
+                        <button data-val="zubau" class="active">Zubau</button>
+                        <button data-val="bestand">Bestand</button>
+                    </div>
+                </div>
+                <p class="hint" id="hintSeg"></p>
+                <div id="chartSeg"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Struktur nach Merkmal</h2>
+                    <p class="hint">Die Auswahl gilt für beide Grafiken in diesem Block.</p>
+                    <div class="seg" data-key="dim">
+                        <button data-val="groesse" class="active">Größenklasse</button>
+                        <button data-val="nutzung">Nutzungsbereich</button>
+                        <button data-val="einspeisung">Einspeisungsart</button>
+                        <button data-val="ausrichtung">Ausrichtung</button>
+                        <button data-val="neigung">Neigung</button>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <h2 id="titleCmp"></h2>
+                        <p class="hint" id="hintCmp"></p>
+                        <div id="chartCmp"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h2 id="titleTime"></h2>
+                            <div class="seg small" data-key="viewTime">
+                                <button data-val="zubau" class="active">Zubau</button>
+                                <button data-val="bestand">Bestand</button>
+                            </div>
+                        </div>
+                        <p class="hint">Anteile je Jahr (100 %). Absolute Werte im Tooltip.</p>
+                        <div id="chartTime"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div class="last-update" id="lastUpdate">Letzte Aktualisierung: -</div>
+        <div class="footer-links">
+            <a href="index.html">Übersicht</a>
+            <a href="methodology.html">Methodik</a>
+            <a href="https://energieatlas.berlin.de/" target="_blank" rel="noopener">Mehr Daten im Energieatlas
+                Berlin</a>
+            <a href="impressum.html">Impressum</a>
+        </div>
+    </div>
+
+    <script>
+        Plotly.setPlotConfig({ locale: 'de' });
+
+        // Datenwürfel aus solar_berlin_detail.json, wird in init() gesetzt
+        let D;
+        // Referenzjahr und letzter vollständig abgeschlossener Monat darin
+        let CUR_YEAR, LAST_MONTH;
+        const MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        const FIRST_CHART_YEAR = 2015;
+
+        const COLOR_PV = '#ff9605';
+        const COLOR_BKW = '#2a78d6';
+        const GREY_NA = '#c5c9d0';
+        const SEQ = ['#ffe0ad', '#ffc061', '#ff9605', '#d47600', '#a05500', '#663600'];
+        const CAT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
+        const DIM_LABEL = {
+            groesse: 'Größenklasse', nutzung: 'Nutzungsbereich', einspeisung: 'Einspeisungsart',
+            ausrichtung: 'Hauptausrichtung', neigung: 'Neigungswinkel'
+        };
+        const ORDINAL = { groesse: true, neigung: true };
+
+        const state = { metric: 'kw', viewSeg: 'zubau', viewTime: 'zubau', seg: 'all', dim: 'groesse', year: null };
+
+        // --- Helpers -----------------------------------------------------------
+        // Zeile im Würfel: [Jahr, Monat, Segment, Kategorie, Anzahl, kW]; Stilllegungen haben negative Werte
+        // Segment 1 = Balkonkraftwerk (Definition siehe Analysis_MaStR.py)
+        const isBkw = r => r[2] === 1;
+        const inSeg = r => state.seg === 'all' || (state.seg === 'bkw') === isBkw(r);
+        const val = r => state.metric === 'kw' ? r[5] / 1000 : r[4];
+        const isAdd = r => r[4] > 0;
+        const cutoff = y => y === CUR_YEAR ? LAST_MONTH : 12;
+        const unit = () => state.metric === 'kw' ? ' MWp' : '';
+        const fmt = (v, d) => v.toLocaleString('de-DE', {
+            minimumFractionDigits: d ?? (state.metric === 'kw' ? 1 : 0),
+            maximumFractionDigits: d ?? (state.metric === 'kw' ? 1 : 0)
+        });
+        // Zeitraum-Label; im laufenden Jahr wird auch das Vorjahr nur bis zum selben Monat gezählt
+        const periodLabel = y => cutoff(state.year) < 12 ? `Jan–${MONTHS[LAST_MONTH - 1]} ${y}` : `${y}`;
+        // Laufendes, noch unvollständiges Jahr wird in den Jahresgrafiken mit * markiert
+        const yearTick = y => y === CUR_YEAR && LAST_MONTH < 12 ? `${y}*` : String(y);
+        // Lange Kategorienamen auf schmalen Bildschirmen umbrechen
+        const wrapLabel = name => window.innerWidth < 600 ? name.replace(' / ', ' /<br>') : name;
+        const catColor = (dim, i) => {
+            const name = D.order[dim][i];
+            if (name === 'keine Angabe') return GREY_NA;
+            return ORDINAL[dim] ? SEQ[i] : CAT[i];
+        };
+
+        const sum = (rows, pred) => rows.reduce((s, r) => pred(r) ? s + val(r) : s, 0);
+        // Brutto-Zubau im Jahr y bis einschließlich Monat m
+        const zubau = (rows, y, m, extra = () => true) => sum(rows, r => isAdd(r) && r[0] === y && r[1] <= m && extra(r));
+        // Bestand am Ende von Monat m im Jahr y (Zubau minus Stilllegungen)
+        const bestand = (rows, y, m, extra = () => true) => sum(rows, r => (r[0] < y || (r[0] === y && r[1] <= m)) && extra(r));
+
+        const baseLayout = extra => Object.assign({
+            height: 340,
+            margin: { t: 16, r: 16, b: 40, l: 56 },
+            font: { family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', size: 12, color: '#4a5568' },
+            separators: ',.',
+            dragmode: false,
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            hoverlabel: { bgcolor: 'white', bordercolor: '#cbd5e0', font: { color: '#2d3748', size: 12 }, align: 'left' },
+            legend: { orientation: 'h', y: -0.16, x: 0, font: { size: 11 } },
+            xaxis: { fixedrange: true },
+            yaxis: { fixedrange: true, gridcolor: '#edf2f7', zeroline: false }
+        }, extra);
+        const CONFIG = { responsive: true, displayModeBar: false };
+
+        // --- KPI-Kacheln -------------------------------------------------------
+        function delta(now, prev, { pp = false, digits } = {}) {
+            if (!prev && !pp) return '';
+            const diff = pp ? now - prev : (now / prev - 1) * 100;
+            const cls = diff >= 0 ? 'up' : 'down';
+            const arrow = diff >= 0 ? '▲' : '▼';
+            const txt = Math.abs(diff).toLocaleString('de-DE', { maximumFractionDigits: digits ?? 1 });
+            return `<b class="${cls}">${arrow} ${txt}${pp ? ' %-Pkt.' : ' %'}</b>`;
+        }
+
+        function renderKpis() {
+            const rows = D.dims.groesse;
+            const segRows = rows.filter(inSeg);
+            const y = state.year, m = cutoff(y);
+
+            const bNow = bestand(segRows, y, m), bPrev = bestand(segRows, y - 1, m);
+            const zNow = zubau(segRows, y, m), zPrev = zubau(segRows, y - 1, m);
+            const shareNow = zubau(rows, y, m, isBkw) / zubau(rows, y, m) * 100;
+            const sharePrev = zubau(rows, y - 1, m, isBkw) / zubau(rows, y - 1, m) * 100;
+            const avg = yy => {
+                const add = segRows.filter(r => isAdd(r) && r[0] === yy && r[1] <= m);
+                return add.reduce((s, r) => s + r[5], 0) / add.reduce((s, r) => s + r[4], 0);
+            };
+            const vs = m < 12 ? 'ggü. Vorjahreszeitraum' : `ggü. ${y - 1}`;
+
+            const tiles = [
+                {
+                    label: `Bestand Ende ${MONTHS[m - 1]} ${y}`,
+                    value: fmt(bNow) + unit(),
+                    sub: `${delta(bNow, bPrev)} in 12 Monaten (+${fmt(bNow - bPrev)}${unit()} seit Ende ${MONTHS[m - 1]} ${y - 1})`
+                },
+                {
+                    label: `Brutto-Zubau ${periodLabel(y)}`,
+                    value: '+' + fmt(zNow) + unit(),
+                    sub: `${delta(zNow, zPrev)} ${vs} (${fmt(zPrev)}${unit()})` +
+                        (m < 12 ? `<br>Gesamtjahr ${y - 1}: ${fmt(zubau(segRows, y - 1, 12))}${unit()}` : '')
+                },
+                {
+                    label: `Anteil Balkonkraftwerke am Zubau`,
+                    value: fmt(shareNow, 1) + ' %',
+                    sub: `${delta(shareNow, sharePrev, { pp: true })} ${vs} · bezogen auf ${state.metric === 'kw' ? 'Leistung' : 'Anzahl'}`
+                },
+                {
+                    label: `Ø Leistung je neuer Anlage`,
+                    value: fmt(avg(y), 1) + ' kWp',
+                    sub: `${delta(avg(y), avg(y - 1))} ${vs} (${fmt(avg(y - 1), 1)} kWp)`
+                }
+            ];
+            document.getElementById('kpis').innerHTML = tiles.map(t =>
+                `<div class="kpi"><div class="kpi-label">${t.label}</div><div class="kpi-value">${t.value}</div>` +
+                `<div class="kpi-delta">${t.sub}</div></div>`).join('');
+        }
+
+        // --- Chart: Zubau im Jahresverlauf ------------------------------------
+        function renderYtd() {
+            const rows = D.dims.groesse.filter(r => inSeg(r) && isAdd(r));
+            const greys = ['#4a5568', '#a0aec0', '#cbd5e0'];
+            const traces = [];
+            const annotations = [];
+            [3, 2, 1, 0].forEach(back => {
+                const y = state.year - back;
+                const last = cutoff(y);
+                let acc = 0;
+                const ys = [];
+                for (let m = 1; m <= last; m++) {
+                    acc += sum(rows, r => r[0] === y && r[1] === m);
+                    ys.push(acc);
+                }
+                const color = back === 0 ? COLOR_PV : greys[back - 1];
+                traces.push({
+                    x: MONTHS.slice(0, last), y: ys, name: String(y), type: 'scatter', mode: 'lines+markers',
+                    line: { color, width: back === 0 ? 3.5 : 2 },
+                    marker: { size: back === 0 ? 7 : 4, color },
+                    hovertemplate: `<b>${y}</b> bis %{x}: %{y:,.${state.metric === 'kw' ? 1 : 0}f}${unit()}<extra></extra>`
+                });
+                annotations.push({
+                    x: MONTHS[last - 1], y: acc, text: `<b>${y}</b>`, showarrow: false, xanchor: 'left', xshift: 8,
+                    font: { size: 11, color: '#2d3748' }
+                });
+            });
+            Plotly.react('chartYtd', traces, baseLayout({
+                showlegend: false,
+                annotations,
+                margin: { t: 16, r: 46, b: 40, l: 56 },
+                hovermode: 'x unified',
+                xaxis: { fixedrange: true, categoryorder: 'array', categoryarray: MONTHS, range: [-0.3, 11.3] },
+                yaxis: {
+                    fixedrange: true, gridcolor: '#edf2f7', rangemode: 'tozero',
+                    title: { text: state.metric === 'kw' ? 'MWp (kumuliert)' : 'Anlagen (kumuliert)', standoff: 8 }
+                }
+            }), CONFIG);
+        }
+
+        // --- Chart: Balkonkraftwerke vs. übrige Anlagen je Jahr ----------------
+        function renderSeg() {
+            const rows = D.dims.groesse.filter(inSeg);
+            const years = [];
+            for (let y = FIRST_CHART_YEAR; y <= CUR_YEAR; y++) years.push(y);
+            const f = state.viewSeg === 'zubau' ? zubau : bestand;
+            const series = [
+                { name: 'Gebäude- und Freiflächenanlagen', color: COLOR_PV, pred: r => !isBkw(r) },
+                { name: 'Balkonkraftwerke', color: COLOR_BKW, pred: isBkw }
+            ];
+            const dec = state.metric === 'kw' ? 1 : 0;
+            const traces = series.map(s => ({
+                x: years.map(yearTick),
+                y: years.map(y => f(rows, y, cutoff(y), s.pred)),
+                name: s.name, type: 'bar',
+                marker: { color: s.color, line: { color: 'white', width: 1.5 } },
+                hovertemplate: `<b>%{x}</b> · ${s.name}<br>%{y:,.${dec}f}${unit()}<extra></extra>`
+            })).filter(t => t.y.some(v => v > 0));
+
+            document.getElementById('titleSeg').textContent = state.viewSeg === 'zubau'
+                ? 'Brutto-Zubau pro Jahr nach Anlagentyp' : 'Bestand zum Jahresende nach Anlagentyp';
+            document.getElementById('hintSeg').textContent =
+                LAST_MONTH < 12 ? `* ${CUR_YEAR}: Stand Ende ${MONTHS[LAST_MONTH - 1]}.` : '';
+            Plotly.react('chartSeg', traces, baseLayout({
+                barmode: 'stack',
+                bargap: 0.25,
+                showlegend: true,
+                xaxis: { fixedrange: true, type: 'category' },
+                yaxis: {
+                    fixedrange: true, gridcolor: '#edf2f7',
+                    title: { text: state.metric === 'kw' ? 'MWp' : 'Anlagen', standoff: 8 }
+                }
+            }), CONFIG);
+        }
+
+        // --- Chart: Merkmal – Zubau vs. Bestand (Anteile) ----------------------
+        function renderCmp() {
+            const rows = D.dims[state.dim].filter(inSeg);
+            const cats = D.order[state.dim];
+            const y = state.year, m = cutoff(y);
+            const dec = state.metric === 'kw' ? 1 : 0;
+            const groups = [
+                { name: `Bestand ${MONTHS[m - 1]} ${y}`, color: '#4a5568', f: p => bestand(rows, y, m, p) },
+                { name: `Zubau ${periodLabel(y - 1)}`, color: '#ffc98a', f: p => zubau(rows, y - 1, m, p) },
+                { name: `Zubau ${periodLabel(y)}`, color: COLOR_PV, f: p => zubau(rows, y, m, p) }
+            ];
+            // Kategorien von oben nach unten: Plotly zeichnet horizontal von unten, daher umdrehen
+            const idx = cats.map((_, i) => i).reverse();
+            const traces = groups.slice().reverse().map(g => {
+                const abs = idx.map(i => g.f(r => r[3] === i));
+                const total = abs.reduce((a, b) => a + b, 0) || 1;
+                return {
+                    y: idx.map(i => wrapLabel(cats[i])), x: abs.map(v => v / total * 100), customdata: abs,
+                    name: g.name, type: 'bar', orientation: 'h',
+                    marker: { color: g.color },
+                    hovertemplate: `<b>%{y}</b> · ${g.name}<br>%{x:.1f} % · %{customdata:,.${dec}f}${unit()}<extra></extra>`
+                };
+            });
+            document.getElementById('titleCmp').textContent = `${DIM_LABEL[state.dim]}: Zubau vs. Bestand`;
+            document.getElementById('hintCmp').textContent =
+                `Anteile an ${state.metric === 'kw' ? 'der Leistung' : 'der Anzahl'} – ` +
+                `was heute gebaut wird im Vergleich zum Vorjahr und zum gesamten Bestand.`;
+            Plotly.react('chartCmp', traces, baseLayout({
+                barmode: 'group',
+                bargap: 0.28,
+                bargroupgap: 0.08,
+                height: 380,
+                margin: { t: 16, r: 16, b: 40, l: 150 },
+                legend: { orientation: 'h', y: -0.14, x: 0, traceorder: 'reversed', font: { size: 11 } },
+                xaxis: { fixedrange: true, ticksuffix: ' %', gridcolor: '#edf2f7', zeroline: false },
+                yaxis: { fixedrange: true, automargin: true }
+            }), CONFIG);
+        }
+
+        // --- Chart: Merkmal im Zeitverlauf (100 %) -----------------------------
+        function renderTime() {
+            const rows = D.dims[state.dim].filter(inSeg);
+            const cats = D.order[state.dim];
+            const years = [];
+            for (let y = FIRST_CHART_YEAR; y <= CUR_YEAR; y++) years.push(y);
+            const f = state.viewTime === 'zubau' ? zubau : bestand;
+            const dec = state.metric === 'kw' ? 1 : 0;
+            const abs = cats.map((_, i) => years.map(y => f(rows, y, cutoff(y), r => r[3] === i)));
+            const totals = years.map((_, j) => abs.reduce((s, a) => s + a[j], 0) || 1);
+            const traces = cats.map((c, i) => ({
+                x: years.map(yearTick),
+                y: abs[i].map((v, j) => v / totals[j] * 100),
+                customdata: abs[i],
+                name: c, type: 'bar',
+                marker: { color: catColor(state.dim, i), line: { color: 'white', width: 1.5 } },
+                hovertemplate: `<b>%{x}</b> · ${c}<br>%{y:.1f} % · %{customdata:,.${dec}f}${unit()}<extra></extra>`
+            })).filter((t, i) => abs[i].some(v => v > 0));
+
+            document.getElementById('titleTime').textContent =
+                `${DIM_LABEL[state.dim]} im Zeitverlauf – ${state.viewTime === 'zubau' ? 'Zubau' : 'Bestand'}`;
+            Plotly.react('chartTime', traces, baseLayout({
+                barmode: 'stack',
+                bargap: 0.25,
+                height: 380,
+                legend: { orientation: 'h', y: -0.14, x: 0, traceorder: 'normal', font: { size: 11 } },
+                xaxis: { fixedrange: true, type: 'category' },
+                yaxis: { fixedrange: true, ticksuffix: ' %', range: [0, 100], gridcolor: '#edf2f7' }
+            }), CONFIG);
+        }
+
+        function render() {
+            renderKpis();
+            renderYtd();
+            renderSeg();
+            renderCmp();
+            renderTime();
+        }
+
+        // --- Controls ----------------------------------------------------------
+        document.querySelectorAll('.seg').forEach(group => {
+            group.addEventListener('click', e => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                group.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+                state[group.dataset.key] = btn.dataset.val;
+                render();
+            });
+        });
+
+        const yearSel = document.getElementById('yearSel');
+        yearSel.addEventListener('change', () => { state.year = +yearSel.value; render(); });
+
+        function init(data) {
+            D = data;
+            // Liegt der Datenstand im Januar, ist noch kein Monat des neuen Jahres abgeschlossen:
+            // Referenz ist dann das vollständige Vorjahr
+            const [standYear, standMonth] = D.stand.split('-').map(Number);
+            CUR_YEAR = standMonth === 1 ? standYear - 1 : standYear;
+            LAST_MONTH = standMonth === 1 ? 12 : standMonth - 1;
+            state.year = CUR_YEAR;
+
+            for (let y = CUR_YEAR; y >= FIRST_CHART_YEAR + 3; y--) {
+                yearSel.add(new Option(y === CUR_YEAR && LAST_MONTH < 12 ? `${y} (bis ${MONTHS[LAST_MONTH - 1]})` : y, y));
+            }
+            document.getElementById('lastUpdate').textContent =
+                `Letzte Aktualisierung: ${D.stand.split('-').reverse().join('.')}, Quelle: MaStR, Bundesnetzagentur`;
+            render();
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('solar_berlin_detail.json');
+                if (!response.ok) {
+                    throw new Error('Could not load JSON file');
+                }
+                init(await response.json());
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('kpis').innerHTML =
+                    '<div style="color: red; padding: 20px; text-align: center; grid-column: 1 / -1;">' +
+                    '<strong>Fehler:</strong> Die Datei solar_berlin_detail.json konnte nicht geladen werden.</div>';
+            }
+        }
+
+        loadData();
+    </script>
+    <!-- Visit tracker -->
+    <script data-goatcounter="https://afanegas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    </script>
+</body>
+
+</html>

@@ -20,8 +20,10 @@ This project imports, analyzes, and visualizes solar power installation data for
 - `Import_MaStR.py` - Script to import data from the MaStR registry
 - `Analysis_MaStR.py` - Data analysis and processing
 - `index.html` - Main visualization page
+- `detail.html` - Detail dashboard (additions vs. stock, balcony PV, size classes, usage, orientation)
 - `methodology.html` - Documentation of data methodology
 - `solar_berlin_yearly.csv` - Processed yearly data
+- `solar_berlin_detail.json` - Monthly aggregates by plant type and attribute for the detail dashboard
 - `master.sh` - Automation script
 
 ## Setup
